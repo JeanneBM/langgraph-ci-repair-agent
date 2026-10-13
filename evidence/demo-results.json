@@ -1,0 +1,41 @@
+{
+  "mode": "scripted_offline_demo",
+  "generated_by": "scripts/generate_evidence.py",
+  "live_azure_tested": false,
+  "remote_ci_executed": false,
+  "github_pr_created": false,
+  "runs": [
+    {
+      "scenario": "S01",
+      "status_before_approval": "awaiting_approval",
+      "status_after_approval": "draft_prepared",
+      "attempts": 1,
+      "validation": "Static fixture checks passed; CI execution still required.",
+      "diff": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -4,5 +4,5 @@\n   test:\n     runs-on: ubuntu-latest\n     steps:\n-      - run: python -m pip install -r requirement.txt\n+      - run: python -m pip install -r requirements.txt\n       - run: python -m pytest tests\n"
+    },
+    {
+      "scenario": "S02",
+      "status_before_approval": "awaiting_approval",
+      "status_after_approval": "draft_prepared",
+      "attempts": 1,
+      "validation": "Static fixture checks passed; CI execution still required.",
+      "diff": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1,2 @@\n pytest\n+requests\n"
+    },
+    {
+      "scenario": "S03",
+      "status_before_approval": "awaiting_approval",
+      "status_after_approval": "draft_prepared",
+      "attempts": 1,
+      "validation": "Static fixture checks passed; CI execution still required.",
+      "diff": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -5,4 +5,4 @@\n     runs-on: ubuntu-latest\n     steps:\n       - run: python -m pip install -r requirements.txt\n-      - run: python -m pytests tests\n+      - run: python -m pytest tests\n"
+    },
+    {
+      "scenario": "S04",
+      "status_before_approval": "awaiting_approval",
+      "status_after_approval": "draft_prepared",
+      "attempts": 2,
+      "validation": "Static fixture checks passed; CI execution still required.",
+      "diff": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -4,5 +4,5 @@\n   test:\n     runs-on: ubuntu-latest\n     steps:\n-      - run: python -m pip install -r requirement.txt\n+      - run: python -m pip install -r requirements.txt\n       - run: python -m pytest tests\n--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1,2 @@\n pytest\n+requests\n"
+    }
+  ]
+}
