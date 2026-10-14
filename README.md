@@ -4,6 +4,15 @@ A bounded CI repair workflow: diagnose a failure, propose one file change, enfor
 
 **Status:** local proof of concept. Uses real LangGraph orchestration and LangChain interfaces. Demo responses are scripted; Azure mode calls a real model. Neither mode creates a GitHub PR or runs remote CI.
 
+## Individual lab reports
+
+Use `python scripts/validate_lab.py smoke` for this repository's existing lab.
+For setup, smoke, verified deletion, recreation and another smoke/delete,
+use the explicit `cycle` command in the [lab validation guide](docs/lab-validation.md).
+Each run writes its own JSON/Markdown report under `.local/reports/`.
+Verdicts and exit codes: PASS (0), FAIL (1), INCONCLUSIVE (2).
+No combined report across repositories is produced.
+
 ## Scope
 
 | Scenario | Failure | Permitted correction |
