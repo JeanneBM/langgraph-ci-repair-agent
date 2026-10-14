@@ -142,6 +142,7 @@ def main():
         "delete", help="Delete and verify the dedicated group"
     )
     cleanup.add_argument("--confirm", help="Exact recorded group name (noninteractive)")
+    commands.add_parser("smoke", help="Live smoke checks with this repository's report")
     args = parser.parse_args()
     if args.action == "setup":
         setup(args)
@@ -149,6 +150,12 @@ def main():
     if args.action == "delete":
         delete(ROOT, args.confirm)
         return 0
+    if args.action == "smoke":
+        import subprocess
+
+        return subprocess.call(
+            [sys.executable, "scripts/validate_lab.py", "smoke"], cwd=ROOT
+        )
     _, state = load(ROOT)
     if args.action == "check":
         owned_group(state)
