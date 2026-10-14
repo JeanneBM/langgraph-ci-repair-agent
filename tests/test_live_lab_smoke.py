@@ -45,7 +45,7 @@ def test_graph_smoke_requires_restart_approval_and_no_rejected_export(
                     else "Policy refused",
                 }
         elif action == "approve":
-            data = {"status": "draft_prepared"}
+            data = {"status": "draft_prepared", "diff": "patch", "draft": "draft"}
             (folder / "repair.patch").write_text("patch")
             (folder / "draft-pr.md").write_text("draft")
         else:
@@ -58,3 +58,4 @@ def test_graph_smoke_requires_restart_approval_and_no_rejected_export(
     assert adapter.graph_smoke(tmp_path, {}).verdict == expected
     if problem is None:
         assert [cmd[3] for cmd in commands] == ["run", "approve", "run", "reject"]
+        assert len(list(tmp_path.rglob("approval-gate.json"))) == 2

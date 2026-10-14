@@ -219,6 +219,9 @@ class CloudLab:
                     "approval_gate_not_reached",
                     checks,
                 )
+            (folder / "approval-gate.json").write_text(
+                evidence.read_text(encoding="utf-8"), encoding="utf-8"
+            )
             checks[scenario + "ApprovalGate"] = not (folder / "repair.patch").exists()
             execute(
                 [*cli, action, "--thread", thread, "--output", str(output)],
@@ -233,6 +236,11 @@ class CloudLab:
                     resumed["status"] == "draft_prepared"
                     and (folder / "repair.patch").is_file()
                     and (folder / "draft-pr.md").is_file()
+                    and bool(resumed.get("diff"))
+                    and (folder / "repair.patch").read_text(encoding="utf-8")
+                    == resumed["diff"]
+                    and (folder / "draft-pr.md").read_text(encoding="utf-8")
+                    == resumed["draft"]
                 )
             else:
                 checks[scenario + "RejectedWithoutExport"] = (
