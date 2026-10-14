@@ -2,6 +2,7 @@ import argparse
 import json
 from pathlib import Path
 from uuid import uuid4
+from dotenv import load_dotenv
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
 from .graph import build_graph, model_for
@@ -16,6 +17,7 @@ def main():
     p.add_argument('--thread')
     p.add_argument('--output', default='artifacts')
     args = p.parse_args()
+    load_dotenv(Path.cwd() / '.env', override=False)
     if args.action != 'run' and not args.thread:
         p.error('--thread is required for resume/status')
     thread = args.thread or str(uuid4())

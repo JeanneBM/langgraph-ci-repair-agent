@@ -68,12 +68,47 @@ python -m ci_repair.cli run --scenario S04 --thread s04-demo   # needs two attem
 python -m pytest -q
 ```
 
+## Dedicated Azure demo lab
+
+Install the project dependencies above, use a current Azure CLI, and log in with
+an account that can create resources and assign roles. Run from the repository
+root, one command at a time:
+
+```sh
+az login
+python scripts/lab.py setup --subscription '<YOUR_SUBSCRIPTION_ID>'
+python scripts/lab.py check
+python scripts/lab.py run --scenario S01
+python scripts/lab.py delete
+```
+
+Setup creates an isolated Azure OpenAI account and `gpt-4.1-mini` deployment in
+`rg-langgraph-ci-repair-demo`. It assigns the signed-in identity resource-scoped
+inference access and uses Entra authentication without persisting API keys.
+The graph still runs locally on the synthetic scenarios. Live inference calls
+are metered; no remote GitHub PR or CI job is created. Model availability/quota
+and RBAC propagation must be checked on your subscription during the first run.
+The new lab lifecycle is tested offline; a live Azure trial remains outstanding.
+
+Run prints the thread ID and stops at the existing approval gate. Use the normal
+CLI `status`, `approve` or `reject` commands with that ID. Checkpoints and exported
+patches stay in `artifacts/` after deletion. Each new run gets a new thread ID.
+
+`check` verifies ownership and recorded setup state, not model health. `delete`
+requires the recorded group name, waits for deletion, and verifies absence.
+Noninteractive cleanup is `python scripts/lab.py delete --confirm rg-langgraph-ci-repair-demo`.
+Keep `.local/` for retries. Interrupted setup can be resumed with the same
+parameters or deleted. A recreated lab gets fresh names; unrelated groups are
+refused. Optional setup parameters: `--group`, `--location`, `--model`,
+`--model-version`, `--capacity`. Soft-deleted Cognitive Services accounts are
+retained for recovery and are not purged.
+
 ## Azure OpenAI mode
 
-Set these environment variables in your shell (a `.env` file is not loaded automatically):
+Set these environment variables in your shell, or copy `.env.example` to `.env` in the project directory (existing shell values take precedence):
 
 - `AZURE_OPENAI_ENDPOINT`
-- `AZURE_OPENAI_API_KEY`
+- `AZURE_OPENAI_API_KEY` (or `AZURE_OPENAI_USE_ENTRA=1` with `az login`)
 - `AZURE_OPENAI_DEPLOYMENT`
 - `OPENAI_API_VERSION` (default `2024-10-21`; use a version supported by your deployment)
 
