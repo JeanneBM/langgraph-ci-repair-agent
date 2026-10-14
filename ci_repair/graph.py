@@ -191,7 +191,12 @@ def model_for(mode):
     if mode == 'demo':
         return RunnableLambda(offline_model)
     from langchain_openai import AzureChatOpenAI
-    return AzureChatOpenAI(azure_deployment=os.environ['AZURE_OPENAI_DEPLOYMENT'],
+    auth = {}
+    if os.environ.get('AZURE_OPENAI_USE_ENTRA') == '1':
+        from azure.identity import AzureCliCredential, get_bearer_token_provider
+        auth['azure_ad_token_provider'] = get_bearer_token_provider(
+            AzureCliCredential(), 'https://cognitiveservices.azure.com/.default')
+    return AzureChatOpenAI(**auth, azure_deployment=os.environ['AZURE_OPENAI_DEPLOYMENT'],
         api_version=os.environ.get('OPENAI_API_VERSION', '2024-10-21'),
         temperature=0, timeout=60, max_retries=1).with_structured_output(Proposal)
 

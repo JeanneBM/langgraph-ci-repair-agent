@@ -5,3 +5,5 @@ langchain-core==1.6.10
 pydantic==2.14.1
 PyYAML==6.0.3
 pytest==9.1.1
+python-dotenv==1.2.4
+azure-identity==1.26.0
