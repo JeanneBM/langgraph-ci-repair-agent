@@ -15,6 +15,7 @@ from langchain_core.runnables import RunnableLambda
 from langgraph.graph import StateGraph, START, END
 from langgraph.types import interrupt
 from .scenarios import WORKFLOW
+from .telemetry import emit, tool
 
 MAX_ATTEMPTS = 2
 ALLOWED_PACKAGES = {'requests'}
@@ -225,6 +226,7 @@ def build_graph(model, checkpointer):
                                              'history': s.get('history', [])}))]
         try:
             p = model.invoke(messages)
+            emit('llm_call', attrs={'usage_available': False})
             p = p if isinstance(p, Proposal) else Proposal.model_validate(p)
             return {'proposal': p.model_dump(), 'attempts': s['attempts'] + 1, 'status': 'proposed'}
         except Exception:
@@ -233,13 +235,16 @@ def build_graph(model, checkpointer):
                     'status': 'escalated', 'feedback': 'Model response failed or did not match the schema.'}
 
     def gate(s):
+        tool('policy_check', s.get('proposal', {}))
         ok, reason = policy(s.get('working', s['files']), Proposal.model_validate(s['proposal']), s['log'])
         return {'policy_ok': ok, 'feedback': reason, 'status': 'policy_checked' if ok else 'blocked'}
 
     def check(s):
+        tool('fixture_validation', s.get('proposal', {}))
         p = s['proposal']
         candidate = {**s.get('working', s['files']), p['path']: p['content']}
         ok, feedback = validate(candidate)
+        emit('verification', status='ok' if ok else 'failed', attrs={'verifier': 'static_fixture_validator'})
         history = s.get('history', []) + [{'attempt': s['attempts'], 'path': p['path'],
                                            'result': 'sufficient' if ok else 'not sufficient: ' + feedback}]
         return {'valid': ok, 'feedback': feedback, 'working': candidate, 'history': history,
@@ -252,6 +257,7 @@ def build_graph(model, checkpointer):
         return {'status': 'approved' if answer is True else 'rejected'}
 
     def draft(s):
+        tool('draft_export', {'approved': s.get('status') == 'approved'})
         return {'status': 'draft_prepared', 'draft': '# CI repair proposal\n\n' +
             s['proposal']['diagnosis'] + '\n\nValidation: ' + s['feedback'] +
             '\n\nHuman approved local export. No GitHub PR has been created.\n'}

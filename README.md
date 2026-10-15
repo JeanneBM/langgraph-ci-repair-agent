@@ -155,3 +155,13 @@ Add a read-only GitHub workflow-log adapter, validate candidate changes in an is
 - https://docs.langchain.com/oss/python/langgraph/interrupts
 - https://docs.langchain.com/oss/python/langgraph/persistence
 - https://docs.langchain.com/oss/python/integrations/chat/azure_chat_openai
+
+## Runtime observability
+
+Set `AGENT_TELEMETRY_FILE` to an absolute JSONL path watched by the platform monitor.
+CLI executions emit run lifecycle, model-call occurrence, deterministic policy and
+fixture validation operations, and human-review escalation. Observation does not
+approve repairs or export drafts. Tool arguments are hashed; raw logs, proposals
+and prompts are excluded. Provider token usage is currently unavailable from this
+structured model adapter and is marked incomplete rather than estimated.
+The platform enables telemetry automatically for its startup execution.

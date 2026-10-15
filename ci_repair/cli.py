@@ -7,6 +7,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.types import Command
 from .graph import build_graph, model_for
 from .scenarios import scenario
+from .telemetry import Trace
 
 
 def main():
@@ -34,11 +35,17 @@ def main():
         if args.action == 'run':
             if snapshot.values:
                 p.error('Thread already exists; use a new ID or resume it')
-            graph.invoke(scenario(args.scenario), cfg)
+            with Trace('ci-repair', thread + '-run') as trace:
+                graph.invoke(scenario(args.scenario), cfg)
+                outcome = graph.get_state(cfg).values
+                if outcome.get('status') in ('awaiting_approval', 'escalated', 'blocked'):
+                    trace.status = 'escalated'
+                    trace.event('escalation', status=outcome['status'])
         elif args.action in ('approve', 'reject'):
             if not any(t.interrupts for t in snapshot.tasks):
                 p.error('Thread has no pending approval')
-            graph.invoke(Command(resume=args.action == 'approve'), cfg)
+            with Trace('ci-repair'):
+                graph.invoke(Command(resume=args.action == 'approve'), cfg)
         state = graph.get_state(cfg).values
         if not state:
             p.error('Unknown thread')
