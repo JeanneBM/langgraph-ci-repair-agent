@@ -18,6 +18,7 @@ from .scenarios import WORKFLOW
 from .telemetry import emit, tool
 
 MAX_ATTEMPTS = 2
+S05_MAX_ATTEMPTS = 3
 ALLOWED_PACKAGES = {'requests'}
 
 
@@ -273,7 +274,7 @@ def build_graph(model, checkpointer):
     g.add_conditional_edges('propose', lambda s: 'policy' if s['proposal'] else 'escalate')
     g.add_conditional_edges('policy', lambda s: 'validate' if s['policy_ok'] else 'escalate')
     g.add_conditional_edges('validate', lambda s: 'approve' if s['valid'] else
-                           ('propose' if s['attempts'] < MAX_ATTEMPTS else 'escalate'))
+                           ('propose' if s['attempts'] < (S05_MAX_ATTEMPTS if s['scenario'] == 'S05' else MAX_ATTEMPTS) else 'escalate'))
     g.add_conditional_edges('approve', lambda s: 'draft' if s['status'] == 'approved' else END)
     g.add_edge('draft', END)
     g.add_edge('escalate', END)

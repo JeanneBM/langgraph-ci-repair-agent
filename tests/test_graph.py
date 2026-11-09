@@ -30,7 +30,7 @@ def run(model, initial, thread='t'):
     return g, cfg, g.invoke(initial, cfg)
 
 
-@pytest.mark.parametrize('code', ['S01', 'S02', 'S03', 'S04'])
+@pytest.mark.parametrize('code', ['S01', 'S02', 'S03', 'S04', 'S05'])
 def test_failure_repair_pause_and_approval(code):
     initial = scenario(code)
     assert not validate(initial['files'])[0]
@@ -50,6 +50,18 @@ def test_two_failures_need_two_attempts_and_diff_covers_both_files():
     assert result['attempts'] == 2
     assert 'a/requirements.txt' in result['diff'] and 'a/' + WORKFLOW in result['diff']
     assert result['history'][0]['result'].startswith('not sufficient')
+
+
+def test_s05_repairs_three_defects_without_losing_prior_changes():
+    _, _, result = run(model_for('demo'), scenario('S05'))
+    assert result['status'] == 'awaiting_approval'
+    assert result['attempts'] == 3
+    assert [attempt['path'] for attempt in result['history']] == [
+        WORKFLOW, WORKFLOW, 'requirements.txt',
+    ]
+    assert result['working'][WORKFLOW].count('requirements.txt') == 1
+    assert 'python -m pytest tests' in result['working'][WORKFLOW]
+    assert 'requests' in result['working']['requirements.txt'].splitlines()
 
 
 def test_rejection():

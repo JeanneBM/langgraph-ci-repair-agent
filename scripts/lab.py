@@ -133,7 +133,7 @@ def main():
     run = commands.add_parser(
         "run", help="Run a live Azure scenario, stopping at human approval"
     )
-    run.add_argument("--scenario", choices=["S01", "S02", "S03", "S04"], default="S01")
+    run.add_argument("--scenario", choices=["S01", "S02", "S03", "S04", "S05"], default="S01")
     run.add_argument(
         "--thread", help="A new thread ID; a UUID is generated when omitted"
     )
