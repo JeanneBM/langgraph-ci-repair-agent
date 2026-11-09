@@ -13,7 +13,7 @@ from .telemetry import Trace
 def main():
     p = argparse.ArgumentParser(description='Bounded CI repair PoC')
     p.add_argument('action', choices=['run', 'approve', 'reject', 'status'])
-    p.add_argument('--scenario', choices=['S01', 'S02', 'S03', 'S04'], default='S01')
+    p.add_argument('--scenario', choices=['S01', 'S02', 'S03', 'S04', 'S05'], default='S01')
     p.add_argument('--mode', choices=['demo', 'azure'], default='demo')
     p.add_argument('--thread')
     p.add_argument('--output', default='artifacts')

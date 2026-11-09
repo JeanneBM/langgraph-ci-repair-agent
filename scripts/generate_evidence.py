@@ -16,7 +16,7 @@ TARGET = Path(__file__).resolve().parent.parent / 'evidence' / 'demo-results.jso
 
 def build():
     runs = []
-    for code in ['S01', 'S02', 'S03', 'S04']:
+    for code in ['S01', 'S02', 'S03', 'S04', 'S05']:
         graph = build_graph(model_for('demo'), InMemorySaver())
         cfg = {'configurable': {'thread_id': code}}
         paused = graph.invoke(scenario(code), cfg)

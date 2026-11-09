@@ -21,6 +21,7 @@ No combined report across repositories is produced.
 | S02 | Missing Python dependency | Append `requests` to `requirements.txt` |
 | S03 | Misspelled test module | `pytests` → `pytest` |
 | S04 | S01 and S02 together | Two attempts, one file each; the second sees the first |
+| S05 | Combined S01, S02 and S03 failure logs | Fix both workflow typos and add `requests`; up to three proposals, one file each |
 
 A fix is authorized only if the failure log matches its rule, so a correct-looking change for a different failure is rejected.
 
@@ -41,7 +42,7 @@ flowchart TD
   H -->|Reject| R[Rejected]
 ```
 
-LangGraph handles conditional routing, a maximum of two proposal attempts (an accepted but insufficient change is kept in `working` and the next attempt builds on it, with the earlier attempts and reasons in `history`), SQLite checkpoint persistence and `interrupt`/`Command` approval. LangChain provides message interfaces, a demo Runnable and `AzureChatOpenAI.with_structured_output` with a Pydantic schema. A policy rejection escalates immediately.
+LangGraph handles conditional routing, a maximum of two proposal attempts (three for S05) (an accepted but insufficient change is kept in `working` and the next attempt builds on it, with the earlier attempts and reasons in `history`), SQLite checkpoint persistence and `interrupt`/`Command` approval. LangChain provides message interfaces, a demo Runnable and `AzureChatOpenAI.with_structured_output` with a Pydantic schema. A policy rejection escalates immediately.
 
 ## Quick start
 
@@ -74,6 +75,7 @@ Run the other scenarios:
 python -m ci_repair.cli run --scenario S02 --thread s02-demo
 python -m ci_repair.cli run --scenario S03 --thread s03-demo
 python -m ci_repair.cli run --scenario S04 --thread s04-demo   # needs two attempts
+python -m ci_repair.cli run --scenario S05 --thread s05-demo
 python -m pytest -q
 ```
 
@@ -97,7 +99,7 @@ inference access and uses Entra authentication without persisting API keys.
 The graph still runs locally on the synthetic scenarios. Live inference calls
 are metered; no remote GitHub PR or CI job is created. Model availability/quota
 and RBAC propagation must be checked on your subscription during the first run.
-The new lab lifecycle is tested offline; a live Azure trial remains outstanding.
+The [live S01 report](evidence/live-azure-s01-2026-11-09.md) records a model-backed run. For S05, run `python scripts/lab.py run --scenario S05` after setup and check that the final diff contains all three fixes before approval. Its combined log is synthetic.
 
 Run prints the thread ID and stops at the existing approval gate. Use the normal
 CLI `status`, `approve` or `reject` commands with that ID. Checkpoints and exported
@@ -127,7 +129,7 @@ The deployment must support structured output and the configured model parameter
 python -m ci_repair.cli run --mode azure --scenario S01 --thread s01-azure
 ```
 
-Azure credentials and a deployment are required. Live Azure inference has not been validated in this delivery; tests only mock the Azure client to check wiring and error handling. There is no evaluation set yet, so model diagnosis quality is unmeasured. Offline demo success is not evidence of LLM diagnosis quality. Provider/schema failures escalate without exporting raw provider exception messages.
+Azure credentials and a deployment are required. The automated tests mock the Azure client to check wiring and error handling. There is no evaluation set yet, so model diagnosis quality is unmeasured. Offline demo success is not evidence of LLM diagnosis quality. Provider/schema failures escalate without exporting raw provider exception messages.
 
 ## Policy and execution boundary
 

@@ -22,6 +22,13 @@ def scenario(code):
         files['app.py'] = 'from requests import get\n'
         log = ('ERROR: Could not open requirements file: requirement.txt (No such file or directory)\n'
                "ModuleNotFoundError: No module named 'requests'")
+    elif code == 'S05':
+        files[WORKFLOW] = (files[WORKFLOW].replace('requirements.txt', 'requirement.txt')
+                           .replace('python -m pytest tests', 'python -m pytests tests'))
+        files['app.py'] = 'from requests import get\n'
+        log = ('ERROR: Could not open requirements file: requirement.txt (No such file or directory)\n'
+               'python: No module named pytests\n'
+               "ModuleNotFoundError: No module named 'requests'")
     else:
         raise ValueError('Unknown scenario')
     return {'scenario': code, 'files': files, 'log': log, 'attempts': 0,
