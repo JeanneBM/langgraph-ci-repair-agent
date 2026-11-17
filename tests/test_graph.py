@@ -183,3 +183,9 @@ def test_validator_detects_unlisted_dependency_in_all_import_forms(source):
 def test_validator_rejects_unknown_command():
     files = scenario('S03')['files']
     assert validate(files)[1].startswith('Unexpected command')
+
+
+def test_out_of_scope_failure_escalates_instead_of_editing_tests():
+    _, _, result = run(model_for('demo'), scenario('S06'))
+    assert result['status'] == 'escalated'
+    assert 'draft' not in result and result['files'] == scenario('S06')['files']

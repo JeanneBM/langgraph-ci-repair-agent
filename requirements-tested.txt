@@ -7,3 +7,4 @@ PyYAML==6.0.3
 pytest==9.1.1
 python-dotenv==1.2.4
 azure-identity==1.26.0
+agent-policy-guard @ git+https://github.com/JeanneBM/agent-policy-guard@4ec36af31701324004326c9944baabf7c8252f86
