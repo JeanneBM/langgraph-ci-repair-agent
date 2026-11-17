@@ -15,8 +15,8 @@ mode creates a GitHub PR or pushes anything.
 | Claim | Evidence |
 |---|---|
 | S01–S05 are repaired and S06 (a failing assertion) is escalated, with the scripted model | [`evidence/demo-results.json`](evidence/demo-results.json), regenerated and checked in CI |
-| The pipeline works on real GitHub Actions logs: each fixture runs as a real CI job, the agent reads the downloaded job log, isolated runs reveal the next failure, and the export passes the policy | `Real CI logs` workflow (job `agent on real logs`), report artifact `real-logs-report` |
-| Candidates run in a container with no network, a read-only root, no capabilities and a non-root user | `Real CI logs` workflow (job `scenarios in a network-less container`) |
+| The pipeline works on real GitHub Actions logs: each fixture runs as a real CI job, the agent reads the downloaded job log, isolated runs reveal the next failure, and the export passes the policy | [`evidence/real-actions-logs-2026-11-17.md`](evidence/real-actions-logs-2026-11-17.md); re-run by the `Real CI logs` workflow on every PR |
+| Candidates run in a container with no network, a read-only root, no capabilities and a non-root user | `Real CI logs` workflow, job `scenarios in a network-less container` (S01–S05 repaired, S06 escalated on 2026-11-17) |
 | A real model on Azure OpenAI: S01 reached patch export, S05 escalated after a policy rejection | [S01](evidence/live-azure-s01-2026-11-09.md), [S05](evidence/live-azure-s05-2026-11-09.md) (recorded before the policy library and isolation were added) |
 
 Not shown: diagnosis quality of a real model (there is no evaluation set), runs on
