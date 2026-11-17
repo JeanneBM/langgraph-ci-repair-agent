@@ -1,6 +1,12 @@
 {
   "mode": "scripted_offline_demo",
   "generated_by": "scripts/generate_evidence.py",
+  "isolation": "none (static checks only; see scripts/run_report.py for isolated runs)",
+  "policy": {
+    "id": "langgraph-ci-repair",
+    "file": "ci_repair/policies/ci_repair.yaml",
+    "sha256": "0f66b13b0296a0696c5f64b196df97f30226a5d7b34d0e8c70cd7307d08ad664"
+  },
   "live_azure_tested": false,
   "remote_ci_executed": false,
   "github_pr_created": false,
@@ -44,6 +50,14 @@
       "attempts": 3,
       "validation": "Static fixture checks passed; CI execution still required.",
       "diff": "--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -4,5 +4,5 @@\n   test:\n     runs-on: ubuntu-latest\n     steps:\n-      - run: python -m pip install -r requirement.txt\n-      - run: python -m pytests tests\n+      - run: python -m pip install -r requirements.txt\n+      - run: python -m pytest tests\n--- a/requirements.txt\n+++ b/requirements.txt\n@@ -1 +1,2 @@\n pytest\n+requests\n"
+    },
+    {
+      "scenario": "S06",
+      "status_before_approval": "escalated",
+      "status_after_approval": "not_applicable",
+      "attempts": 1,
+      "validation": "Proposal does not change the file.",
+      "diff": ""
     }
   ]
 }
