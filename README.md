@@ -17,7 +17,7 @@ mode creates a GitHub PR or pushes anything.
 | S01–S05 are repaired and S06 (a failing assertion) is escalated, with the scripted model | [`evidence/demo-results.json`](evidence/demo-results.json), regenerated and checked in CI |
 | The pipeline works on real GitHub Actions logs: each fixture runs as a real CI job, the agent reads the downloaded job log, isolated runs reveal the next failure, and the export passes the policy | [`evidence/real-actions-logs-2026-11-17.md`](evidence/real-actions-logs-2026-11-17.md); re-run by the `Real CI logs` workflow on every PR |
 | Candidates run in a container with no network, a read-only root, no capabilities and a non-root user | `Real CI logs` workflow, job `scenarios in a network-less container` (S01–S05 repaired, S06 escalated on 2026-11-17) |
-| A real model on Azure OpenAI: S01 reached patch export, S05 escalated after a policy rejection | [S01](evidence/live-azure-s01-2026-11-09.md), [S05](evidence/live-azure-s05-2026-11-09.md) (recorded before the policy library and isolation were added) |
+| A real model on Azure OpenAI (`gpt-4.1-mini`): S01 repaired, with the proposal and the export authorized by the v1.0 policy after human approval | [S01, 2026-11-17](evidence/live-azure-s01-2026-11-17.md). Earlier, before the policy library and isolation: [S01](evidence/live-azure-s01-2026-11-09.md) exported and [S05](evidence/live-azure-s05-2026-11-09.md) escalated after a policy rejection |
 
 Not shown: diagnosis quality of a real model (there is no evaluation set), runs on
 arbitrary repositories, and publishing a GitHub PR. The scripted model makes the
@@ -169,7 +169,7 @@ inference access and uses Entra authentication without persisting API keys.
 The graph still runs locally on the synthetic scenarios. Live inference calls
 are metered; no remote GitHub PR or CI job is created. Model availability/quota
 and RBAC propagation must be checked on your subscription during the first run.
-The [live S01 report](evidence/live-azure-s01-2026-11-09.md) records a model-backed run. For S05, run `python scripts/lab.py run --scenario S05` after setup and check that the final diff contains all three fixes before approval. Its combined log is synthetic.
+The [live S01 report](evidence/live-azure-s01-2026-11-17.md) records a model-backed run with the v1.0 policy. For S05, run `python scripts/lab.py run --scenario S05` after setup and check that the final diff contains all three fixes before approval. Its combined log is synthetic.
 
 Run prints the thread ID and stops at the existing approval gate. Use the normal
 CLI `status`, `approve` or `reject` commands with that ID. Checkpoints and exported
