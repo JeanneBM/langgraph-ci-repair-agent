@@ -4,10 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "langgraph-ci-repair-agent"
-version = "0.1.0"
+version = "1.0.0"
 description = "Bounded CI repair proposals with LangChain and LangGraph"
 requires-python = ">=3.11"
-dependencies = ["langgraph>=1.0,<2", "langgraph-checkpoint-sqlite>=3,<4", "langchain-openai>=1,<2", "langchain-core>=1,<2", "pydantic>=2,<3", "PyYAML>=6,<7", "python-dotenv>=1.2,<2", "azure-identity>=1.26,<2"]
+dependencies = ["langgraph>=1.0,<2", "langgraph-checkpoint-sqlite>=3,<4", "langchain-openai>=1,<2", "langchain-core>=1,<2", "pydantic>=2,<3", "PyYAML>=6,<7", "python-dotenv>=1.2,<2", "azure-identity>=1.26,<2",
+    # Policy-as-code library from the same portfolio, pinned to a reviewed commit.
+    "agent-policy-guard @ git+https://github.com/JeanneBM/agent-policy-guard@4ec36af31701324004326c9944baabf7c8252f86"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10"]
@@ -17,3 +19,6 @@ ci-repair = "ci_repair.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["ci_repair*"]
+
+[tool.setuptools.package-data]
+ci_repair = ["policies/*.yaml"]

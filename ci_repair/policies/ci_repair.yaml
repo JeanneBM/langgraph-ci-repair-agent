@@ -1,0 +1,86 @@
+# Authorization policy for the CI repair agent, evaluated by agent-policy-guard.
+# The model only supplies a proposal. Every fact below is computed by the host
+# (ci_repair/guard.py) from the snapshot, the failure evidence and the human answer.
+# No match means deny. Precedence: deny > require_human > escalate > allow.
+id: langgraph-ci-repair
+version: "1.0.0"
+rules:
+  # --- ci.accept_proposal: may a proposed file change enter validation? ---
+  - id: path-outside-snapshot
+    decision: deny
+    reason: Path outside permitted scope.
+    conditions:
+      - {field: action.type, op: eq, value: ci.accept_proposal}
+      - {field: context.facts.path_in_snapshot, op: eq, value: false}
+  - id: proposal-is-noop
+    decision: deny
+    reason: Proposal does not change the file.
+    conditions:
+      - {field: action.type, op: eq, value: ci.accept_proposal}
+      - {field: context.facts.changes_file, op: eq, value: false}
+  - id: protected-tests
+    decision: deny
+    reason: Test files are protected; the agent may not change them.
+    conditions:
+      - {field: action.type, op: eq, value: ci.accept_proposal}
+      - {field: context.facts.touches_tests, op: eq, value: true}
+  - id: rule-not-matched
+    decision: deny
+    reason: Change not authorized for this failure.
+    conditions:
+      - {field: action.type, op: eq, value: ci.accept_proposal}
+      - {field: context.facts.rule_authorized, op: eq, value: false}
+  - id: rule-matched-change
+    decision: allow
+    reason: Change is one a repair rule triggered by the failure evidence would make.
+    conditions:
+      - {field: action.type, op: eq, value: ci.accept_proposal}
+      - {field: context.actor, op: eq, value: ci-repair-agent}
+      - {field: context.facts.path_in_snapshot, op: eq, value: true}
+      - {field: context.facts.changes_file, op: eq, value: true}
+      - {field: context.facts.touches_tests, op: eq, value: false}
+      - {field: context.facts.rule_authorized, op: eq, value: true}
+
+  # --- ci.export_patch: may the approved diff leave the agent as a patch? ---
+  - id: export-protected-tests
+    decision: deny
+    reason: The final diff changes test files.
+    conditions:
+      - {field: action.type, op: eq, value: ci.export_patch}
+      - {field: context.facts.touches_tests, op: eq, value: true}
+  - id: export-isolated-check-not-passed
+    decision: deny
+    reason: The isolated run of this exact candidate did not pass.
+    conditions:
+      - {field: action.type, op: eq, value: ci.export_patch}
+      - {field: context.facts.isolated_check, op: in, value: [failed, refused, error, stale]}
+  - id: export-needs-approval
+    decision: require_human
+    reason: Export needs an explicit human approval.
+    conditions:
+      - {field: action.type, op: eq, value: ci.export_patch}
+      - {field: context.facts.human_approved, op: eq, value: false}
+  - id: export-lab-verified
+    decision: allow
+    reason: Approved diff passed static checks and an isolated run of the same snapshot.
+    conditions:
+      - {field: action.type, op: eq, value: ci.export_patch}
+      - {field: context.actor, op: eq, value: ci-repair-agent}
+      - {field: context.environment, op: eq, value: lab}
+      - {field: context.facts.human_approved, op: eq, value: true}
+      - {field: context.facts.static_validation_passed, op: eq, value: true}
+      - {field: context.facts.isolated_check, op: eq, value: passed}
+      - {field: context.facts.all_steps_allowed, op: eq, value: true}
+      - {field: context.facts.touches_tests, op: eq, value: false}
+  - id: export-static-demo
+    decision: allow
+    reason: Approved diff passed static checks; no isolated run was requested.
+    conditions:
+      - {field: action.type, op: eq, value: ci.export_patch}
+      - {field: context.actor, op: eq, value: ci-repair-agent}
+      - {field: context.environment, op: eq, value: static-demo}
+      - {field: context.facts.human_approved, op: eq, value: true}
+      - {field: context.facts.static_validation_passed, op: eq, value: true}
+      - {field: context.facts.isolated_check, op: eq, value: not_run}
+      - {field: context.facts.all_steps_allowed, op: eq, value: true}
+      - {field: context.facts.touches_tests, op: eq, value: false}

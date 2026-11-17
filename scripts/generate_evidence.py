@@ -9,22 +9,28 @@ from pathlib import Path
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 from ci_repair.graph import build_graph, model_for
-from ci_repair.scenarios import scenario
+from ci_repair.guard import default_engine
+from ci_repair.scenarios import SCENARIOS, scenario
 
 TARGET = Path(__file__).resolve().parent.parent / 'evidence' / 'demo-results.json'
 
 
 def build():
     runs = []
-    for code in ['S01', 'S02', 'S03', 'S04', 'S05']:
+    for code in SCENARIOS:
         graph = build_graph(model_for('demo'), InMemorySaver())
         cfg = {'configurable': {'thread_id': code}}
         paused = graph.invoke(scenario(code), cfg)
-        done = graph.invoke(Command(resume=True), cfg)
+        approval_needed = paused['status'] == 'awaiting_approval'
+        done = graph.invoke(Command(resume=True), cfg) if approval_needed else paused
         runs.append({'scenario': code, 'status_before_approval': paused['status'],
-                     'status_after_approval': done['status'], 'attempts': done['attempts'],
-                     'validation': done['feedback'], 'diff': done['diff']})
+                     'status_after_approval': done['status'] if approval_needed else 'not_applicable',
+                     'attempts': done['attempts'], 'validation': done['feedback'], 'diff': done.get('diff', '')})
+    engine = default_engine()
     return {'mode': 'scripted_offline_demo', 'generated_by': 'scripts/generate_evidence.py',
+            'isolation': 'none (static checks only; see scripts/run_report.py for isolated runs)',
+            'policy': {'id': 'langgraph-ci-repair', 'file': 'ci_repair/policies/ci_repair.yaml',
+                       'sha256': engine.policy_hash},
             'live_azure_tested': False, 'remote_ci_executed': False, 'github_pr_created': False,
             'runs': runs}
 
