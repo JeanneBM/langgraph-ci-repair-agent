@@ -51,7 +51,7 @@ Inputs are synthetic repository snapshots. They are real enough to run: the `Rea
 
 ```mermaid
 flowchart TD
-  L[Failure log: synthetic, file or GitHub job] --> P[LangChain proposal]
+  L["Failure log: synthetic, file or GitHub job"] --> P["LangChain proposal: demo or Azure OpenAI"]
   P -->|Model or schema error| E[Escalation]
   P --> G{Policy: ci.accept_proposal}
   G -->|deny| E
@@ -61,7 +61,9 @@ flowchart TD
   V -->|Pass| H{Human approval}
   H -->|Reject| R[Rejected]
   H -->|Approve| X{GuardedExecutor: ci.export_patch}
-  X -->|allow| D[Local patch and draft PR text]
+  X -->|allow| D["Local patch and draft PR text"]
+  P --> S[("SQLite LangGraph checkpoints")]
+  H --> S
   X -->|deny or require_human| B[Export blocked]
 ```
 
